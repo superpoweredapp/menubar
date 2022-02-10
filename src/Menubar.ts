@@ -146,9 +146,10 @@ export class Menubar extends EventEmitter {
 			this._options.windowPosition = getWindowPosition(this.tray);
 		}
 
-		this.emit('show');
 
 		this.setPosition(trayPos);
+		
+		this.emit('show');
 
 		this._browserWindow.show();
 		this._isVisible = true;
