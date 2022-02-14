@@ -146,20 +146,6 @@ export class Menubar extends EventEmitter {
 			this._options.windowPosition = getWindowPosition(this.tray);
 		}
 
-
-		this.setPosition(trayPos);
-		
-		this.emit('show');
-
-		this._browserWindow.show();
-		this._isVisible = true;
-		this.emit('after-show');
-		return;
-	}
-
-	private setPosition(trayPos?: Electron.Rectangle): void {
-		if (!this._browserWindow) return;
-
 		if (trayPos && trayPos.x !== 0) {
 			// Cache the bounds
 			this._cachedBounds = trayPos;
@@ -198,6 +184,13 @@ export class Menubar extends EventEmitter {
 		// `.setPosition` crashed on non-integers
 		// https://github.com/maxogden/menubar/issues/233
 		this._browserWindow.setPosition(Math.round(x), Math.round(y));
+
+		this.emit('show');
+
+		this._browserWindow.show();
+		this._isVisible = true;
+		this.emit('after-show');
+		return;
 	}
 
 	private async appReady(): Promise<void> {
@@ -308,6 +301,16 @@ export class Menubar extends EventEmitter {
 				return;
 			}
 
+			if (process.platform === 'win32') {
+				this._blurTimeout = setTimeout(() => {
+					this._browserWindow?.isAlwaysOnTop()
+						? this.emit('focus-lost')
+						: this.hideWindow();
+				}, 300);
+
+				return;
+			}
+
 			// hack to close if icon clicked when open
 			this._browserWindow.isAlwaysOnTop()
 				? this.emit('focus-lost')
@@ -330,8 +333,6 @@ export class Menubar extends EventEmitter {
 				this._options.loadUrlOptions
 			);
 		}
-
-		this.setPosition();
 
 		this.emit('after-create-window');
 	}
