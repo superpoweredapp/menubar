@@ -232,8 +232,10 @@ export class Menubar extends EventEmitter {
 			// eslint-disable-next-line @typescript-eslint/no-misused-promises
 			this.clicked.bind(this)
 		);
+
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.tray.on('double-click', this.clicked.bind(this));
+		// this.tray.on('double-click', this.clicked.bind(this));
+
 		this.tray.setToolTip(this._options.tooltip);
 
 		if (!this._options.windowPosition) {
