@@ -218,20 +218,11 @@ export class Menubar extends EventEmitter {
 			); // Default cat icon
 		}
 
-		const defaultClickEvent = this._options.showOnRightClick
-			? 'right-click'
-			: 'click';
-
 		this._tray = this._options.tray || new Tray(trayImage);
 		// Type guards for TS not to complain
 		if (!this.tray) {
 			throw new Error('Tray has been initialized above');
 		}
-		this.tray.on(
-			defaultClickEvent as Parameters<Tray['on']>[0],
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
-			this.clicked.bind(this)
-		);
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		// this.tray.on('double-click', this.clicked.bind(this));
