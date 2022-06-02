@@ -303,13 +303,7 @@ export class Menubar extends EventEmitter {
 			if (!this._browserWindow) {
 				return;
 			}
-
-			// hack to close if icon clicked when open
-			this._browserWindow.isAlwaysOnTop()
-				? this.emit('focus-lost')
-				: (this._blurTimeout = setTimeout(() => {
-						this.hideWindow();
-				  }, 100));
+			this.emit('focus-lost');
 		});
 
 		if (this._options.showOnAllWorkspaces !== false) {
