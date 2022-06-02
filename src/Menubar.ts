@@ -294,22 +294,7 @@ export class Menubar extends EventEmitter {
 				return;
 			}
 
-			if (process.platform === 'win32') {
-				this._blurTimeout = setTimeout(() => {
-					this._browserWindow?.isAlwaysOnTop()
-						? this.emit('focus-lost')
-						: this.hideWindow();
-				}, 300);
-
-				return;
-			}
-
-			// hack to close if icon clicked when open
-			this._browserWindow.isAlwaysOnTop()
-				? this.emit('focus-lost')
-				: (this._blurTimeout = setTimeout(() => {
-						this.hideWindow();
-				  }, 100));
+			this.emit('focus-lost');
 		});
 
 		if (this._options.showOnAllWorkspaces !== false) {
