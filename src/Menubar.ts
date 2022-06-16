@@ -146,8 +146,6 @@ export class Menubar extends EventEmitter {
 			this._options.windowPosition = getWindowPosition(this.tray);
 		}
 
-		this.emit('show');
-
 		if (trayPos && trayPos.x !== 0) {
 			// Cache the bounds
 			this._cachedBounds = trayPos;
@@ -175,21 +173,20 @@ export class Menubar extends EventEmitter {
 			trayPos
 		) as { x: number; y: number };
 
-		if (!isBrowserWindowInstance(this._options.browserWindow)) {
-			// Not using `||` because x and y can be zero.
-			const x =
-				this._options.browserWindow.x !== undefined
-					? this._options.browserWindow.x
-					: position.x;
-			const y =
-				this._options.browserWindow.y !== undefined
-					? this._options.browserWindow.y
-					: position.y;
+		let x = position.x;
+		let y = position.y;
 
-			// `.setPosition` crashed on non-integers
-			// https://github.com/maxogden/menubar/issues/233
-			this._browserWindow.setPosition(Math.round(x), Math.round(y));
+		if (!isBrowserWindowInstance(this._options.browserWindow)) {
+			x = this._options.browserWindow.x ?? x;
+			y = this._options.browserWindow.y ?? y;
 		}
+
+		// `.setPosition` crashed on non-integers
+		// https://github.com/maxogden/menubar/issues/233
+		this._browserWindow.setPosition(Math.round(x), Math.round(y));
+
+		this.emit('show');
+
 		this._browserWindow.show();
 		this._isVisible = true;
 		this.emit('after-show');
@@ -221,22 +218,15 @@ export class Menubar extends EventEmitter {
 			); // Default cat icon
 		}
 
-		const defaultClickEvent = this._options.showOnRightClick
-			? 'right-click'
-			: 'click';
-
 		this._tray = this._options.tray || new Tray(trayImage);
 		// Type guards for TS not to complain
 		if (!this.tray) {
 			throw new Error('Tray has been initialized above');
 		}
-		this.tray.on(
-			defaultClickEvent as Parameters<Tray['on']>[0],
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
-			this.clicked.bind(this)
-		);
+
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.tray.on('double-click', this.clicked.bind(this));
+		// this.tray.on('double-click', this.clicked.bind(this));
+
 		this.tray.setToolTip(this._options.tooltip);
 
 		if (!this._options.windowPosition) {
@@ -310,7 +300,7 @@ export class Menubar extends EventEmitter {
 			this._browserWindow.setVisibleOnAllWorkspaces(true);
 		}
 
-		this._browserWindow.on('close', this.windowClear.bind(this));
+		this._browserWindow.on('closed', this.windowClear.bind(this));
 
 		// If the user explicity set options.index to false, we don't loadURL
 		// https://github.com/maxogden/menubar/issues/255
@@ -320,6 +310,7 @@ export class Menubar extends EventEmitter {
 				this._options.loadUrlOptions
 			);
 		}
+
 		this.emit('after-create-window');
 	}
 
