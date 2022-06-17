@@ -293,7 +293,6 @@ export class Menubar extends EventEmitter {
 			if (!this._browserWindow) {
 				return;
 			}
-
 			this.emit('focus-lost');
 		});
 
